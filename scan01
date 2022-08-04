@@ -1,0 +1,187 @@
+import os
+import ipwhois
+import dns.resolver
+import requests as requests
+from bs4 import BeautifulSoup
+from colorama import Fore
+from requests.exceptions import Timeout
+import socket
+import nmap
+
+
+class config:
+    velocidade = 5
+
+class Cores1:
+    vermelho = Fore.RED
+    azul = Fore.BLUE
+    verde = Fore.GREEN
+
+def menu():
+    print("1 - VERIFICAR LISTA ATUALIZADA!\n2 - VERIFICAR ERRO DO IP\n3 - VERIFICAR SUBDOMINIO E SEPARAR IP\n")
+    escolha = input("Qual sua escolha : ")
+    if escolha == "1":
+        config1 = requests.get("https://bitbin.it/JV112Q2L/raw/")
+        soup = BeautifulSoup(config1.content, "html.parser")
+        #with open('lista.txt', 'wb') as f:
+         #   f.write(config1.content)
+          #  f.close()
+        lista2 =  open('lista.txt', 'r+')
+        lista = lista2.read().split()
+        lista2.close()
+        print("aff")
+        for host in lista:
+            try:
+                verificar = requests.get(f'http://{host}').status_code
+                # print(verificar)
+                if verificar == 403:
+                    print(f'{Fore.GREEN}{host} VALIDO {verificar}')
+                    if os.path.isdir("resultado"):
+                        pass
+                    else:
+                        os.makedirs('resultado')
+                    valido_txt = open(f"./resultado/valido.txt", 'a')
+                    valido_txt.write(f'{host}\n')
+                    valido_txt.close()
+                else:
+                    print(f'{Cores1.vermelho}{host} INVALIDO')
+            except Timeout:
+                print(f'{Fore.RED}{host} TEMPO EXCEDIDO, PROVAVELMENTE INVÁLIDO')
+            except:
+                print(f'{Fore.RED}{host}  ERRO NA VERIFICAÇÃO')
+
+        return menu()
+
+    elif escolha == "2":
+
+        host = str(input('digite o ip para verificar'))
+
+        verificar = requests.get(f'http://{host}', timeout=config.velocidade).status_code
+        print(verificar)
+
+        return menu()
+
+    elif escolha == "3":
+
+        def domain_scanner(dom_name, sub_domnames):
+            global host
+            print('----URL after scanning subdomains----')
+
+            ipcloudflare = open(f"ipcloudflar.txt", 'a')
+            # loop for getting URL's
+            for subdomain in sub_domnames:
+                # making url by putting subdomain one by one
+                url = f"https://{subdomain}.{dom_name}"
+                # using try catch block to avoid crash of the
+                # program
+                try:
+                    # sending get request to the url
+                    requests.get(url, timeout=config.velocidade)
+
+                    # if after putting subdomain one by one url
+                    # is valid then printing the url
+                    print(f'{Fore.GREEN}[+] {url} VÁLIDO!!!!! ')
+
+                    dominioonline_txt = open(f"dononlinjje.txt", 'a')
+                    dominioonline_txt.write(f'{url}\n'.replace('https://', ""))
+                    dominioonline_txt.close()
+                    url2 = f"{subdomain}.{dom_name}"
+
+                    cdn1 = socket.gethostbyname(f"{url2}")
+                    cdn2 = ipwhois.IPWhois(cdn1).lookup_whois()["nets"][0]["description"]
+                    ip = ipwhois.IPWhois(cdn1).lookup_whois()["query"]
+                    if cdn2 == "Cloudflare, Inc.":
+                        ipcloudflare = open(f"ipcloudflare.txt", 'r+')
+                        lista1 = ipcloudflare.read()
+                        if f"{ip}" not in lista1:
+                            ipcloudflare = open(f"ipcloudflare.txt", 'a')
+                            ipcloudflare.write(f'{ip} {url2}\n')
+                            ipcloudflare.close()
+                            print("CLOUDFLARE COPIADO!")
+                        else:
+                            print(f'{ip} CLOUDFLARE')
+                            print("JÁ EXISTE!")
+
+                    if cdn2 == "Amazon Technologies Inc.":
+                        # print("CLOUDFRONT, OK!")
+                        # s = socket.gethostbyname(url2)
+                        # print(s)
+                        # ipcloudfront = open(f"ipcloudfront.txt", 'a')
+                        ipcloudfront = open('ipcloudfront4.txt', 'r+')
+                        lista = ipcloudfront.read()
+                        if f"{ip}" not in lista:
+
+                            ipcloudfront = open(f"ipcloudfront4.txt", 'a')
+                            ipcloudfront.write(f'{ip} {url2}\n')
+                            ipcloudfront.close()
+                            print("CLOUDFRONT COPIADO!")
+                        else:
+                            print(f'{ip} CLOUDFRONT')
+                            print("JÁ EXISTE!")
+
+                # alura.com.br
+
+                except Timeout:
+                    print('TEMPO EXCEDIDO')
+                except:
+                    pass
+
+        # main function
+        if __name__ == '__main__':
+            dom_name = input("DIGITE UM DOMINIO")
+            # https: // raw.githubusercontent.com / danTaler / WordLists / master / Subdomain.txt
+            subdominios = requests.get("https://raw.githubusercontent.com/danTaler/WordLists/master/Subdomain.txt")
+            soup = BeautifulSoup(subdominios.content, "html.parser")
+            with open('sub.txt', 'wb') as f:
+                f.write(subdominios.content)
+                f.close()
+            with open('sub.txt', 'r+') as f:
+                name = f.read()
+                sub_dom = name.splitlines()
+            domain_scanner(dom_name, sub_dom)
+
+        print()
+
+
+
+
+
+    elif escolha == "4":
+
+        def domain_scanner2(dominio):
+            print("aaaa")
+            url23 = f"https://{dominio}"
+            print(url23)
+            try:
+
+                url2 = f"{dominio}"
+                print(url2)
+                requests.get(url23, timeout=config.velocidade)
+                cdn1 = socket.gethostbyname(f'{url2}')
+                cdn2 = ipwhois.IPWhois(cdn1).lookup_whois()
+                print(f"{cdn2}")
+
+            except Timeout:
+                print('TEMPO EXCEDIDO')
+            except:
+                pass
+
+        if __name__ == '__main__':
+            dom_name = input("DIGITE UM DOMINIO")
+            domain_scanner2(dom_name)
+
+        return menu()
+
+
+
+
+
+
+    elif escolha == "5":
+        print()
+        exit()
+    else:
+        return menu()
+
+menu() # iniciar o menu
+
